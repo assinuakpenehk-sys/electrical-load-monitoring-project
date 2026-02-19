@@ -1,64 +1,5 @@
+//Part 3
 #include <iostream>
-#include <iomanip>
-using namespace std;
-
-// Appliance Class Definition
-class Appliance {
-public:
-    string name;
-    float power;
-    float hours;
-
-    Appliance(string n, float p, float h) {
-        name = n;
-        power = p;
-        hours = h;
-    }
-
-    float calculateEnergy() {
-        return (power * hours) / 1000;
-    }
-
-    void display() {
-        cout << "Appliance Name : " << name << endl;
-        cout << "Power Rating   : " << power << " W" << endl;
-        cout << "Usage Hours    : " << hours << " h" << endl;
-        cout << "Energy (kWh)   : " << calculateEnergy() << endl;
-        cout << "-----------------------------------" << endl;
-    }
-};
-
-int main() {
-
-    cout << "=====================================" << endl;
-    cout << "  ELECTRICAL LOAD MONITORING SYSTEM  " << endl;
-    cout << "=====================================\n" << endl;
-
-    // Array of appliances
-    Appliance appliances[5] = {
-        Appliance("Fan", 75, 8),
-        Appliance("Television", 120, 5),
-        Appliance("Refrigerator", 200, 10),
-        Appliance("Air Conditioner", 1500, 6),
-        Appliance("Microwave", 1000, 1)
-    };
-
-    int totalAppliances = 5;
-
-    cout << "Number of Appliances Loaded: " << totalAppliances << "\n" << endl;
-
-    // Loop to display appliances
-    for (int i = 0; i < totalAppliances; i++) {
-        appliances[i].display();
-    }
-
-    cout << "All appliances displayed successfully.\n";
-
-    return 0;
-}
-
-
-//#include <iostream>
 #include <iomanip>
 using namespace std;
 
@@ -126,3 +67,4 @@ int main() {
 
     return 0;
 }
+
