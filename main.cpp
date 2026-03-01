@@ -1,55 +1,94 @@
 #include <iostream>
 #include <iomanip>
+#include <limits>
 using namespace std;
 
 class Appliance {
 public:
     string name;
-    float power;
-    float hours;
+    double power;
+    double hours;
 
-    Appliance(string n, float p, float h) {
-        name = n;
-        power = p;
-        hours = h;
-    }
-
-    float energy() {
-        return (power * hours) / 1000;
+    double energy() const {
+        return (power * hours) / 1000.0;
     }
 };
 
+void clearInput() {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
 int main() {
 
-    cout << "========== LOAD MONITORING SYSTEM (PART 5) ==========\n\n";
+    cout << "=========== ELECTRICAL LOAD MONITORING SYSTEM (PART 6) ===========" << endl;
 
-    Appliance appliances[4] = {
-        Appliance("Fan", 75, 8),
-        Appliance("TV", 120, 5),
-        Appliance("Fridge", 200, 10),
-        Appliance("Air Conditioner", 1500, 6)
-    };
+    int n;
 
-    float tariff;
-    cout << "Enter Electricity Tariff (GHc per kWh): ";
-    cin >> tariff;
+    cout << "\nEnter number of appliances: ";
+    cin >> n;
 
-    float totalEnergy = 0;
-
-    cout << "\n-----------------------------------------\n";
-
-    for (int i = 0; i < 4; i++) {
-        float e = appliances[i].energy();
-        totalEnergy += e;
-        cout << appliances[i].name << " Energy: "
-             << fixed << setprecision(2) << e << " kWh\n";
+    while (cin.fail() || n <= 0 || n > 50) {
+        cout << "Invalid input. Enter a number between 1 and 50: ";
+        clearInput();
+        cin >> n;
     }
 
-    float totalCost = totalEnergy * tariff;
+    Appliance appliances[50];
 
-    cout << "-----------------------------------------\n";
-    cout << "Total Energy = " << totalEnergy << " kWh\n";
-    cout << "Total Cost   = GHc " << totalCost << endl;
+    for (int i = 0; i < n; i++) {
+
+        cout << "\n--- Appliance " << i + 1 << " ---" << endl;
+
+        cout << "Enter Name: ";
+        cin >> appliances[i].name;
+
+        cout << "Enter Power (Watts): ";
+        cin >> appliances[i].power;
+
+        while (cin.fail() || appliances[i].power <= 0) {
+            cout << "Invalid power. Enter again: ";
+            clearInput();
+            cin >> appliances[i].power;
+        }
+
+        cout << "Enter Usage Hours per Day: ";
+        cin >> appliances[i].hours;
+
+        while (cin.fail() || appliances[i].hours < 0 || appliances[i].hours > 24) {
+            cout << "Invalid hours (0-24). Enter again: ";
+            clearInput();
+            cin >> appliances[i].hours;
+        }
+    }
+
+    double totalEnergy = 0;
+
+    cout << "\n================ ENERGY REPORT ================\n";
+    cout << left << setw(20) << "Name"
+         << setw(12) << "Power(W)"
+         << setw(12) << "Hours"
+         << setw(12) << "kWh/day" << endl;
+
+    cout << "------------------------------------------------\n";
+
+    for (int i = 0; i < n; i++) {
+        double e = appliances[i].energy();
+        totalEnergy += e;
+
+        cout << left << setw(20) << appliances[i].name
+             << setw(12) << appliances[i].power
+             << setw(12) << appliances[i].hours
+             << setw(12) << fixed << setprecision(3) << e
+             << endl;
+    }
+
+    cout << "------------------------------------------------\n";
+    cout << "Total Daily Energy Consumption: "
+         << fixed << setprecision(3)
+         << totalEnergy << " kWh/day\n";
+
+    cout << "================================================\n";
 
     return 0;
 }
