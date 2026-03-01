@@ -1,9 +1,8 @@
-//Part 3
+
 #include <iostream>
 #include <iomanip>
 using namespace std;
 
-// Appliance Class Definition
 class Appliance {
 public:
     string name;
@@ -16,55 +15,52 @@ public:
         hours = h;
     }
 
-    float calculateEnergy() {
+    float dailyEnergy() {
         return (power * hours) / 1000;
+    }
+
+    float weeklyEnergy() {
+        return dailyEnergy() * 7;
+    }
+
+    float monthlyEnergy() {
+        return dailyEnergy() * 30;
     }
 
     void display() {
         cout << left << setw(20) << name
              << setw(10) << power
              << setw(10) << hours
-             << setw(10) << calculateEnergy()
+             << setw(12) << dailyEnergy()
+             << setw(12) << weeklyEnergy()
+             << setw(12) << monthlyEnergy()
              << endl;
     }
 };
 
 int main() {
 
-    cout << "====================================================" << endl;
-    cout << "           ELECTRICAL LOAD MONITORING SYSTEM        " << endl;
-    cout << "====================================================\n" << endl;
+    cout << "========== LOAD MONITORING SYSTEM (PART 4) ==========\n\n";
 
-    Appliance appliances[5] = {
+    Appliance appliances[3] = {
         Appliance("Fan", 75, 8),
-        Appliance("Television", 120, 5),
-        Appliance("Refrigerator", 200, 10),
-        Appliance("Air Conditioner", 1500, 6),
-        Appliance("Microwave", 1000, 1)
+        Appliance("TV", 120, 5),
+        Appliance("Fridge", 200, 10)
     };
 
-    int totalAppliances = 5;
-    float totalEnergy = 0;
-
     cout << left << setw(20) << "Name"
-         << setw(10) << "Power(W)"
+         << setw(10) << "Power"
          << setw(10) << "Hours"
-         << setw(10) << "Energy"
+         << setw(12) << "Daily"
+         << setw(12) << "Weekly"
+         << setw(12) << "Monthly"
          << endl;
 
-    cout << "----------------------------------------------------" << endl;
+    cout << "-------------------------------------------------------------\n";
 
-    for (int i = 0; i < totalAppliances; i++) {
+    for (int i = 0; i < 3; i++) {
         appliances[i].display();
-        totalEnergy += appliances[i].calculateEnergy();
     }
-
-    cout << "\n----------------------------------------------------" << endl;
-    cout << "Total Energy Consumption (kWh): " << totalEnergy << endl;
-    cout << "----------------------------------------------------" << endl;
-
-    cout << "\nEnergy calculation completed successfully.\n";
 
     return 0;
 }
-
