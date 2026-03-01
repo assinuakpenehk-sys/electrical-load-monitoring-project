@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <iomanip>
 using namespace std;
@@ -15,52 +14,42 @@ public:
         hours = h;
     }
 
-    float dailyEnergy() {
+    float energy() {
         return (power * hours) / 1000;
-    }
-
-    float weeklyEnergy() {
-        return dailyEnergy() * 7;
-    }
-
-    float monthlyEnergy() {
-        return dailyEnergy() * 30;
-    }
-
-    void display() {
-        cout << left << setw(20) << name
-             << setw(10) << power
-             << setw(10) << hours
-             << setw(12) << dailyEnergy()
-             << setw(12) << weeklyEnergy()
-             << setw(12) << monthlyEnergy()
-             << endl;
     }
 };
 
 int main() {
 
-    cout << "========== LOAD MONITORING SYSTEM (PART 4) ==========\n\n";
+    cout << "========== LOAD MONITORING SYSTEM (PART 5) ==========\n\n";
 
-    Appliance appliances[3] = {
+    Appliance appliances[4] = {
         Appliance("Fan", 75, 8),
         Appliance("TV", 120, 5),
-        Appliance("Fridge", 200, 10)
+        Appliance("Fridge", 200, 10),
+        Appliance("Air Conditioner", 1500, 6)
     };
 
-    cout << left << setw(20) << "Name"
-         << setw(10) << "Power"
-         << setw(10) << "Hours"
-         << setw(12) << "Daily"
-         << setw(12) << "Weekly"
-         << setw(12) << "Monthly"
-         << endl;
+    float tariff;
+    cout << "Enter Electricity Tariff (GHc per kWh): ";
+    cin >> tariff;
 
-    cout << "-------------------------------------------------------------\n";
+    float totalEnergy = 0;
 
-    for (int i = 0; i < 3; i++) {
-        appliances[i].display();
+    cout << "\n-----------------------------------------\n";
+
+    for (int i = 0; i < 4; i++) {
+        float e = appliances[i].energy();
+        totalEnergy += e;
+        cout << appliances[i].name << " Energy: "
+             << fixed << setprecision(2) << e << " kWh\n";
     }
+
+    float totalCost = totalEnergy * tariff;
+
+    cout << "-----------------------------------------\n";
+    cout << "Total Energy = " << totalEnergy << " kWh\n";
+    cout << "Total Cost   = GHc " << totalCost << endl;
 
     return 0;
 }
