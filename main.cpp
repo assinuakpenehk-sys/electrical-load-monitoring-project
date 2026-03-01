@@ -1,6 +1,6 @@
 #include <iostream>
 #include <iomanip>
-#include <limits>
+#include <algorithm>
 using namespace std;
 
 class Appliance {
@@ -14,81 +14,56 @@ public:
     }
 };
 
-void clearInput() {
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+bool compareEnergy(const Appliance &a, const Appliance &b) {
+    return a.energy() > b.energy();
 }
 
 int main() {
 
-    cout << "=========== ELECTRICAL LOAD MONITORING SYSTEM (PART 6) ===========" << endl;
+    Appliance appliances[5] = {
+        {"Fan", 75, 8},
+        {"Television", 120, 5},
+        {"Refrigerator", 200, 10},
+        {"AirConditioner", 1500, 6},
+        {"Microwave", 1000, 1}
+    };
 
-    int n;
+    int n = 5;
 
-    cout << "\nEnter number of appliances: ";
-    cin >> n;
+    double maxEnergy = appliances[0].energy();
+    double minEnergy = appliances[0].energy();
+    string highest = appliances[0].name;
+    string lowest = appliances[0].name;
 
-    while (cin.fail() || n <= 0 || n > 50) {
-        cout << "Invalid input. Enter a number between 1 and 50: ";
-        clearInput();
-        cin >> n;
-    }
-
-    Appliance appliances[50];
-
-    for (int i = 0; i < n; i++) {
-
-        cout << "\n--- Appliance " << i + 1 << " ---" << endl;
-
-        cout << "Enter Name: ";
-        cin >> appliances[i].name;
-
-        cout << "Enter Power (Watts): ";
-        cin >> appliances[i].power;
-
-        while (cin.fail() || appliances[i].power <= 0) {
-            cout << "Invalid power. Enter again: ";
-            clearInput();
-            cin >> appliances[i].power;
-        }
-
-        cout << "Enter Usage Hours per Day: ";
-        cin >> appliances[i].hours;
-
-        while (cin.fail() || appliances[i].hours < 0 || appliances[i].hours > 24) {
-            cout << "Invalid hours (0-24). Enter again: ";
-            clearInput();
-            cin >> appliances[i].hours;
-        }
-    }
-
-    double totalEnergy = 0;
-
-    cout << "\n================ ENERGY REPORT ================\n";
-    cout << left << setw(20) << "Name"
-         << setw(12) << "Power(W)"
-         << setw(12) << "Hours"
-         << setw(12) << "kWh/day" << endl;
-
-    cout << "------------------------------------------------\n";
-
-    for (int i = 0; i < n; i++) {
+    for (int i = 1; i < n; i++) {
         double e = appliances[i].energy();
-        totalEnergy += e;
 
-        cout << left << setw(20) << appliances[i].name
-             << setw(12) << appliances[i].power
-             << setw(12) << appliances[i].hours
-             << setw(12) << fixed << setprecision(3) << e
-             << endl;
+        if (e > maxEnergy) {
+            maxEnergy = e;
+            highest = appliances[i].name;
+        }
+
+        if (e < minEnergy) {
+            minEnergy = e;
+            lowest = appliances[i].name;
+        }
     }
 
-    cout << "------------------------------------------------\n";
-    cout << "Total Daily Energy Consumption: "
-         << fixed << setprecision(3)
-         << totalEnergy << " kWh/day\n";
+    cout << "Highest Energy Appliance: "
+         << highest << " (" << maxEnergy << " kWh/day)\n";
 
-    cout << "================================================\n";
+    cout << "Lowest Energy Appliance: "
+         << lowest << " (" << minEnergy << " kWh/day)\n\n";
+
+    sort(appliances, appliances + n, compareEnergy);
+
+    cout << "======= Appliances Sorted by Energy (Highest to Lowest) =======\n";
+
+    for (int i = 0; i < n; i++) {
+        cout << appliances[i].name
+             << " -> " << appliances[i].energy()
+             << " kWh/day\n";
+    }
 
     return 0;
 }
