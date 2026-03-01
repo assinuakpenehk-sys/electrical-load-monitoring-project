@@ -1,71 +1,222 @@
 #include <iostream>
-#include <fstream>
+#include <vector>
+#include <string>
+#include <limits>
 #include <iomanip>
+#include <algorithm>
+#include <cctype>
+
 using namespace std;
 
-class Appliance {
-public:
+struct Appliance {
     string name;
-    double power;
-    double hours;
+    double powerW;      // watts
+    double hoursPerDay; // 0 - 24
 
-    double energy() const {
-        return (power * hours) / 1000.0;
+    double energyKWhPerDay() const {
+        return (powerW * hoursPerDay) / 1000.0;
     }
 };
 
-int main() {
+static void clearBadInput() {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
 
-    Appliance appliances[4] = {
-        {"Fan", 75, 8},
-        {"Television", 120, 5},
-        {"Refrigerator", 200, 10},
-        {"AirConditioner", 1500, 6}
-    };
+static string toLowerStr(string s) {
+    transform(s.begin(), s.end(), s.begin(),
+              [](unsigned char c) { return static_cast<char>(tolower(c)); });
+    return s;
+}
 
-    int n = 4;
-    double tariff;
+int menu() {
+    cout << "\n==============================\n";
+    cout << "   Electrical Load Monitoring\n";
+    cout << "         (Week 2)\n";
+    cout << "==============================\n";
+    cout << "1. Register appliance\n";
+    cout << "2. View all appliances\n";
+    cout << "3. Search appliance by name\n";
+    cout << "4. Energy summary (kWh/day)\n";
+    cout << "0. Exit\n";
+    cout << "Choose: ";
 
-    cout << "Enter Electricity Tariff (GHc per kWh): ";
-    cin >> tariff;
+    int choice;
+    cin >> choice;
 
-    double totalEnergy = 0;
+    if (cin.fail()) {
+        clearBadInput();
+        return -1;
+    }
+    return choice;
+}
 
-    ofstream file("EnergyReport.txt");
+Appliance registerAppliance() {
+    Appliance a{};
 
-    file << "============================================\n";
-    file << "      ELECTRICAL LOAD MONITORING REPORT     \n";
-    file << "============================================\n\n";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    file << left << setw(20) << "Name"
-         << setw(12) << "Power(W)"
-         << setw(12) << "Hours"
-         << setw(12) << "kWh/day" << endl;
+    do {
+        cout << "Enter appliance name: ";
+        getline(cin, a.name);
+        if (a.name.empty()) cout << "Name must not be empty.\n";
+    } while (a.name.empty());
 
-    file << "--------------------------------------------\n";
+    while (true) {
+        cout << "Enter power rating (W): ";
+        cin >> a.powerW;
 
-    for (int i = 0; i < n; i++) {
-        double e = appliances[i].energy();
-        totalEnergy += e;
+        if (!cin.fail() && a.powerW > 0) break;
 
-        file << left << setw(20) << appliances[i].name
-             << setw(12) << appliances[i].power
-             << setw(12) << appliances[i].hours
-             << setw(12) << fixed << setprecision(3) << e
-             << endl;
+        cout << "Power must be a number greater than zero.\n";
+        clearBadInput();
     }
 
-    double totalCost = totalEnergy * tariff;
+    while (true) {
+        cout << "Enter usage hours per day (0 - 24): ";
+        cin >> a.hoursPerDay;
 
-    file << "\n--------------------------------------------\n";
-    file << "Total Energy (kWh/day): " << totalEnergy << endl;
-    file << "Electricity Tariff: GHc " << tariff << endl;
-    file << "Total Daily Cost: GHc " << totalCost << endl;
-    file << "============================================\n";
+        if (!cin.fail() && a.hoursPerDay >= 0 && a.hoursPerDay <= 24) break;
 
-    file.close();
+        cout << "Hours must be a number between 0 and 24.\n";
+        clearBadInput();
+    }
 
-    cout << "\nReport saved successfully as EnergyReport.txt\n";
+    cout << "Appliance registered successfully!\n";
+    return a;
+}
 
-    return 0;
+void viewAllAppliances(const vector<Appliance>& appliances) {
+    if (appliances.empty()) {
+        cout << "No appliances registered.\n";
+        return;
+    }
+
+    cout << "\n================= APPLIANCES =================\n";
+    cout << left
+         << setw(5)  << "No."
+         << setw(20) << "Name"
+         << setw(12) << "Power(W)"
+         << setw(12) << "Hours/day"
+         << "\n----------------------------------------------\n";
+
+    for (size_t i = 0; i < appliances.size(); i++) {
+        const auto& a = appliances[i];
+        cout << left
+             << setw(5)  << (i + 1)
+             << setw(20) << a.name
+             << setw(12) << fixed << setprecision(2) << a.powerW
+             << setw(12) << fixed << setprecision(2) << a.hoursPerDay
+             << "\n";
+    }
+    cout << "================================================\n";
+}
+
+void searchApplianceByName(const vector<Appliance>& appliances) {
+    if (appliances.empty()) {
+        cout << "No appliances registered.\n";
+        return;
+    }
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    string query;
+    cout << "Enter appliance name to search: ";
+    getline(cin, query);
+
+    if (query.empty()) {
+        cout << "Search term cannot be empty.\n";
+        return;
+    }
+
+    string qLower = toLowerStr(query);
+    bool found = false;
+
+    for (const auto& a : appliances) {
+        if (toLowerStr(a.name).find(qLower) != string::npos) {
+            if (!found) {
+                cout << "\nFound:\n";
+                cout << left
+                     << setw(20) << "Name"
+                     << setw(12) << "Power(W)"
+                     << setw(12) << "Hours/day"
+                     << setw(12) << "kWh/day"
+                     << "\n------------------------------------------------\n";
+            }
+            found = true;
+            cout << left
+                 << setw(20) << a.name
+                 << setw(12) << fixed << setprecision(2) << a.powerW
+                 << setw(12) << fixed << setprecision(2) << a.hoursPerDay
+                 << setw(12) << fixed << setprecision(3) << a.energyKWhPerDay()
+                 << "\n";
+        }
+    }
+
+    if (!found) {
+        cout << "No appliance matched: " << query << "\n";
+    }
+}
+
+void showEnergySummary(const vector<Appliance>& appliances) {
+    if (appliances.empty()) {
+        cout << "No appliances registered.\n";
+        return;
+    }
+
+    cout << "\n=============== ENERGY SUMMARY (per day) ===============\n";
+    cout << left
+         << setw(20) << "Name"
+         << setw(12) << "Power(W)"
+         << setw(12) << "Hours"
+         << setw(12) << "kWh/day"
+         << "\n--------------------------------------------------------\n";
+
+    double total = 0.0;
+
+    for (const auto& a : appliances) {
+        double kwh = a.energyKWhPerDay();
+        total += kwh;
+
+        cout << left
+             << setw(20) << a.name
+             << setw(12) << fixed << setprecision(2) << a.powerW
+             << setw(12) << fixed << setprecision(2) << a.hoursPerDay
+             << setw(12) << fixed << setprecision(3) << kwh
+             << "\n";
+    }
+
+    cout << "--------------------------------------------------------\n";
+    cout << "TOTAL ENERGY: " << fixed << setprecision(3) << total << " kWh/day\n";
+    cout << "========================================================\n";
+}
+
+int main() {
+    vector<Appliance> appliances;
+
+    while (true) {
+        int choice = menu();
+
+        switch (choice) {
+            case 1: {
+                Appliance a = registerAppliance();
+                appliances.push_back(a);
+                break;
+            }
+            case 2:
+                viewAllAppliances(appliances);
+                break;
+            case 3:
+                searchApplianceByName(appliances);
+                break;
+            case 4:
+                showEnergySummary(appliances);
+                break;
+            case 0:
+                cout << "Goodbye!\n";
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    }
 }
