@@ -1,6 +1,6 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
-#include <algorithm>
 using namespace std;
 
 class Appliance {
@@ -14,56 +14,58 @@ public:
     }
 };
 
-bool compareEnergy(const Appliance &a, const Appliance &b) {
-    return a.energy() > b.energy();
-}
-
 int main() {
 
-    Appliance appliances[5] = {
+    Appliance appliances[4] = {
         {"Fan", 75, 8},
         {"Television", 120, 5},
         {"Refrigerator", 200, 10},
-        {"AirConditioner", 1500, 6},
-        {"Microwave", 1000, 1}
+        {"AirConditioner", 1500, 6}
     };
 
-    int n = 5;
+    int n = 4;
+    double tariff;
 
-    double maxEnergy = appliances[0].energy();
-    double minEnergy = appliances[0].energy();
-    string highest = appliances[0].name;
-    string lowest = appliances[0].name;
+    cout << "Enter Electricity Tariff (GHc per kWh): ";
+    cin >> tariff;
 
-    for (int i = 1; i < n; i++) {
-        double e = appliances[i].energy();
+    double totalEnergy = 0;
 
-        if (e > maxEnergy) {
-            maxEnergy = e;
-            highest = appliances[i].name;
-        }
+    ofstream file("EnergyReport.txt");
 
-        if (e < minEnergy) {
-            minEnergy = e;
-            lowest = appliances[i].name;
-        }
-    }
+    file << "============================================\n";
+    file << "      ELECTRICAL LOAD MONITORING REPORT     \n";
+    file << "============================================\n\n";
 
-    cout << "Highest Energy Appliance: "
-         << highest << " (" << maxEnergy << " kWh/day)\n";
+    file << left << setw(20) << "Name"
+         << setw(12) << "Power(W)"
+         << setw(12) << "Hours"
+         << setw(12) << "kWh/day" << endl;
 
-    cout << "Lowest Energy Appliance: "
-         << lowest << " (" << minEnergy << " kWh/day)\n\n";
-
-    sort(appliances, appliances + n, compareEnergy);
-
-    cout << "======= Appliances Sorted by Energy (Highest to Lowest) =======\n";
+    file << "--------------------------------------------\n";
 
     for (int i = 0; i < n; i++) {
-        cout << appliances[i].name
-             << " -> " << appliances[i].energy()
-             << " kWh/day\n";
+        double e = appliances[i].energy();
+        totalEnergy += e;
+
+        file << left << setw(20) << appliances[i].name
+             << setw(12) << appliances[i].power
+             << setw(12) << appliances[i].hours
+             << setw(12) << fixed << setprecision(3) << e
+             << endl;
     }
+
+    double totalCost = totalEnergy * tariff;
+
+    file << "\n--------------------------------------------\n";
+    file << "Total Energy (kWh/day): " << totalEnergy << endl;
+    file << "Electricity Tariff: GHc " << tariff << endl;
+    file << "Total Daily Cost: GHc " << totalCost << endl;
+    file << "============================================\n";
+
+    file.close();
+
+    cout << "\nReport saved successfully as EnergyReport.txt\n";
 
     return 0;
 }
